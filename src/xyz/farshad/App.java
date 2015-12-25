@@ -10,14 +10,32 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
 public class App {
     public static void main(String[] args) throws Exception {
         WatchService watcher = FileSystems.getDefault().newWatchService();
-        Path backupDir = FileSystems.getDefault().getPath("/home/farshad/Public");
-        Path filesDir = FileSystems.getDefault().getPath("/home/farshad/Public/shell/ssh");
+        Scanner s = new Scanner(System.in);
+
+        System.out.println("please enter your files directory:");
+        String fdPath = s.nextLine();
+
+        System.out.println("please enter backup directory:");
+        String bdPath = s.nextLine();
+        clearConsole();
+
+        if (bdPath.substring(bdPath.length() - 1).equals("/"))
+            bdPath = bdPath.substring(0, bdPath.length()-1);
+
+        if (fdPath.substring(fdPath.length() - 1).equals("/"))
+            fdPath = fdPath.substring(0, fdPath.length()-1);
+
+        System.out.println("backupper is running...");
+
+        Path backupDir = FileSystems.getDefault().getPath(bdPath);
+        Path filesDir = FileSystems.getDefault().getPath(fdPath);
         filesDir.register(watcher, ENTRY_MODIFY, ENTRY_CREATE, ENTRY_DELETE);
         String zipName;
 
@@ -54,6 +72,7 @@ public class App {
        }
     }
 
+    //generate file
     private static String generateFile(Path filesDir, Path backupDir) throws IOException {
 
         Roozh jalali = new Roozh();
@@ -78,11 +97,8 @@ public class App {
 
             if (currrentFile == 10){
                 currrentFile = 0;
-                System.out.println("ten statement:" + currrentFile);
             }else{
-                System.out.println("beforePlus:" + currrentFile);
                 currrentFile +=1;
-                System.out.println("afterPlus:" + currrentFile);
             }
         }
 
@@ -94,5 +110,27 @@ public class App {
         List<String> lines = Arrays.asList(""+currrentFile+"");
         Files.write(file, lines, Charset.forName("UTF-8"));
         return zipName;
+    }
+
+    //clear console
+    public static void clearConsole()
+    {
+        Runtime r = Runtime.getRuntime();
+        try
+        {
+            final String os = System.getProperty("os.name");
+
+            if (os.contains("Windows"))
+            {
+                r.exec("cls");
+            }
+            else
+            {
+                new ProcessBuilder("/bin/sh", "-c", "clear").start();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
