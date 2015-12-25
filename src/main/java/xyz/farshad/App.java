@@ -1,16 +1,13 @@
 package xyz.farshad;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
+
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -49,7 +46,6 @@ public class App {
             }
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind<?> kind = event.kind();
-                @SuppressWarnings("unchecked")
                 WatchEvent<Path> ev = (WatchEvent<Path>) event;
                 Path fileName = ev.context();
 
@@ -106,6 +102,13 @@ public class App {
         jalali.GregorianToPersian(convertDate[0], convertDate[1], convertDate[2]);
         String zipName = String.valueOf(backupDir)+"/"+currrentFile+"_bk."+jalali.toString()+" "+new SimpleDateFormat("H:mm:ss").format(date)+".zip";
 
+        //delete old backup
+        File directory = new File(String.valueOf(backupDir));
+        Collection<File> oldFile = FileUtils.listFiles(directory, new WildcardFileFilter(currrentFile + "_bk.*.zip"), null);
+        if (!oldFile.isEmpty()){
+            File firstElm = oldFile.iterator().next();
+            firstElm.delete();
+        }
 
         List<String> lines = Arrays.asList(""+currrentFile+"");
         Files.write(file, lines, Charset.forName("UTF-8"));
